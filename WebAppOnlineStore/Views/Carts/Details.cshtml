@@ -8,25 +8,18 @@
 
 <div>
     <h4>Carts</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.Name)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Name)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.Amount)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.Amount)
-        </dd>
-
-    </dl>
+    @if (ViewBag.Products != null)
+    {
+        foreach (var product in ViewBag.Products)
+        {
+            <hr />
+            <dl class="dl-horizontal">
+                <dd>
+                    @product.Name
+                </dd>
+            </dl>
+        }
+    }
 </div>
 <p>
     @Html.ActionLink("Edit", "Edit", new { id = Model.Id }) |

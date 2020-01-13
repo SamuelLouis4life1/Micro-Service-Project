@@ -7,7 +7,9 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using DataAccess.Contexts;
+using DataAccess.Repositories;
 using ProductMicroservice.Core.Model;
+using ProductMicroservice.Core.Services;
 
 namespace WebAppOnlineStore.Controllers
 
@@ -24,7 +26,7 @@ namespace WebAppOnlineStore.Controllers
         }
 
         // GET: Carts/Details/5
-        public ActionResult Details(Guid? id)
+        public ActionResult Details(Guid id)
         {
             if (id == null)
             {
@@ -35,6 +37,10 @@ namespace WebAppOnlineStore.Controllers
             {
                 return HttpNotFound();
             }
+
+            var productCartService = new ProductCartService(new ProductCartRepository());
+            ViewBag.Products = productCartService.GetCartProducts(id);
+
             return View(carts);
         }
 

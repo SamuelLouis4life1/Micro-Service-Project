@@ -79,6 +79,8 @@ namespace WebAppOnlineStore.Controllers
             switch (result)
             {
                 case SignInStatus.Success:
+                    Session["userName"] = model.Email;
+                    Session["password"] = model.Password;
                     return RedirectToLocal(returnUrl);
                 case SignInStatus.LockedOut:
                     return View("Lockout");

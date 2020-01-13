@@ -4,9 +4,13 @@ using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
 using DataAccess.Contexts;
+using Newtonsoft.Json.Linq;
 using ProductMicroservice.Core.Model;
 
 namespace WebAppOnlineStore.Controllers
@@ -18,7 +22,55 @@ namespace WebAppOnlineStore.Controllers
         // GET: Products
         public ActionResult Index()
         {
-            return View(db.Products.ToList());
+
+            var token = GetAPIToken(Session["userName"].ToString(), Session["password"].ToString()).Result;
+
+
+            var httpClient = new HttpClient();
+            httpClient.BaseAddress =
+                new Uri("http://localhost:63328");
+            httpClient.DefaultRequestHeaders.Accept.Add(
+                new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+            httpClient.DefaultRequestHeaders.Add("Authorization", "Bearer " + token);
+
+            //Http Get
+            HttpResponseMessage response = httpClient.GetAsync("/api/products").Result;
+            string serializedPostsCollection = response.Content.ReadAsStringAsync().Result;
+            Products[] products = Newtonsoft
+                .Json.JsonConvert
+                .DeserializeObject<Products[]>(serializedPostsCollection);
+
+            return View(products);
+        }
+
+
+        public static async Task<string> GetAPIToken(string userName, string password)
+        {
+            string apiBaseUri = "http://localhost:63328";
+            using (var client = new HttpClient())
+            {
+                //setup client
+                client.BaseAddress = new Uri(apiBaseUri);
+                client.DefaultRequestHeaders.Accept.Clear();
+                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+
+                //setup login data
+                var formContent = new FormUrlEncodedContent(new[]
+                {
+                    new KeyValuePair<string, string>("grant_type", "password"),
+                    new KeyValuePair<string, string>("username", userName),
+                    new KeyValuePair<string, string>("password", password),
+                });
+
+                //send request
+                HttpResponseMessage responseMessage = client.PostAsync("/Token", formContent).Result;
+
+                //get access token from response body
+                var responseJson = await responseMessage.Content.ReadAsStringAsync();
+                var jObject = JObject.Parse(responseJson);
+                return jObject.GetValue("access_token").ToString();
+            }
         }
 
         // GET: Products/Details/5

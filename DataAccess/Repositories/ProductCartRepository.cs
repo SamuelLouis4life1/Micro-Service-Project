@@ -9,7 +9,7 @@ using System.Linq;
 
 namespace DataAccess.Repositories
 {
-    public class ProductCartRepository :IProductCartRepository
+    public class ProductCartRepository : IProductCartRepository
     {
         public void Create(CartProduct productCart)
         {
